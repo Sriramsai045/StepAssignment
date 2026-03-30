@@ -1,52 +1,100 @@
+package PACKAGE_NAME;
+
 import java.util.*;
+class UsernameAvailability {
 
-public class UsernameChecker {
+    HashMap<String, Integer> usernameMap = new HashMap<>();
 
-    static HashMap<String,Integer> users = new HashMap<>();
-    static HashMap<String,Integer> attempts = new HashMap<>();
 
-    static boolean checkAvailability(String name){
-        attempts.put(name, attempts.getOrDefault(name,0)+1);
-        return !users.containsKey(name);
+    HashMap<String, Integer> attemptMap = new HashMap<>();
+
+
+    public boolean checkAvailability(String username) {
+
+        int count = attemptMap.getOrDefault(username, 0);
+        attemptMap.put(username, count + 1);
+
+        if(usernameMap.containsKey(username)) {
+            return false;
+        }
+
+        return true;
     }
 
-    static List<String> suggestAlternatives(String name){
+    public void register(String username, int userId) {
 
-        List<String> list = new ArrayList<>();
+        if(usernameMap.containsKey(username)) {
+            System.out.println("Username already taken");
+            return;
+        }
 
-        for(int i=1;i<=3;i++)
-            list.add(name+i);
-
-        list.add(name.replace("_","."));
-
-        return list;
+        usernameMap.put(username, userId);
+        System.out.println("User registered successfully");
     }
 
-    static String getMostAttempted(){
 
-        String user="";
-        int max=0;
 
-        for(String u:attempts.keySet()){
-            if(attempts.get(u)>max){
-                max=attempts.get(u);
-                user=u;
+    public List<String> suggestAlternatives(String username) {
+
+        List<String> suggestions = new ArrayList<>();
+
+        for(int i = 1; i <= 5; i++) {
+
+            String newName = username + i;
+
+            if(!usernameMap.containsKey(newName)) {
+                suggestions.add(newName);
             }
         }
 
-        return user;
+        // Replace underscore with dot
+        if(username.contains("_")) {
+
+            String alt = username.replace("_", ".");
+
+            if(!usernameMap.containsKey(alt)) {
+                suggestions.add(alt);
+            }
+        }
+
+        return suggestions;
     }
 
-    public static void main(String[] args){
 
-        users.put("john_doe",1);
-        users.put("admin",2);
+    // Find most attempted username
+    public String getMostAttempted() {
 
-        System.out.println(checkAvailability("john_doe"));
-        System.out.println(checkAvailability("jane_smith"));
+        String maxUser = "";
+        int maxCount = 0;
 
-        System.out.println(suggestAlternatives("john_doe"));
+        for(String user : attemptMap.keySet()) {
 
-        System.out.println(getMostAttempted());
+            int count = attemptMap.get(user);
+
+            if(count > maxCount) {
+                maxCount = count;
+                maxUser = user;
+            }
+        }
+
+        return maxUser + " (" + maxCount + " attempts)";
+    }
+
+
+    public static void main(String[] args) {
+
+        UsernameAvailability system = new UsernameAvailability();
+
+        system.register("john_doe", 101);
+        system.register("alex99", 102);
+
+        System.out.println(system.checkAvailability("john_doe"));
+        System.out.println(system.checkAvailability("jane_smith"));
+
+        System.out.println(system.suggestAlternatives("john_doe"));
+
+        System.out.println(system.getMostAttempted());
     }
 }
+
+
